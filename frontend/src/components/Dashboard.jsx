@@ -5,6 +5,7 @@ import PrivacyGuardCard from "./PrivacyGuardCard";
 import ClauseList from "./ClauseList";
 import ChatPanel from "./ChatPanel";
 import WhatIfPanel from "./WhatIfPanel";
+import KPSCard from "./KPSCard";
 
 const TABS = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
@@ -30,6 +31,7 @@ export default function Dashboard({ documentId, uploadResult, analysis, onReset 
   const result = analysis.analysis;
   const readability = analysis.readability || {};
   const privacy = uploadResult.privacy;
+  const kps = analysis.kps;
 
   const readabilityData = [
     { name: "Before", score: readability.before ?? 0 },
@@ -80,11 +82,16 @@ export default function Dashboard({ documentId, uploadResult, analysis, onReset 
 
           {tab === "overview" && (
             <div className="space-y-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <MetricCard label="Policy Complexity" value={complexityScore(result)} suffix="/100" />
-                <MetricCard label="Coverage Clauses" value={result.coverage.length} />
-                <MetricCard label="Exclusions" value={result.exclusions.length} />
-                <MetricCard label="Attention Points" value={result.attentionPoints.length} />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="md:col-span-1">
+                  <KPSCard kps={kps} />
+                </div>
+                <div className="md:col-span-2 grid grid-cols-2 gap-4 content-start">
+                  <MetricCard label="Policy Complexity" value={complexityScore(result)} suffix="/100" />
+                  <MetricCard label="Coverage Clauses" value={result.coverage.length} />
+                  <MetricCard label="Exclusions" value={result.exclusions.length} />
+                  <MetricCard label="Attention Points" value={result.attentionPoints.length} />
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

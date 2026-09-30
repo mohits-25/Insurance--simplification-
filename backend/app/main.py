@@ -22,6 +22,7 @@ from app.analysis_graph import run_policy_analysis
 from app.chatbot_graph import ask_policy
 from app.whatif_graph import run_what_if
 from app.readability import flesch_reading_ease
+from app.kps import calculateKPS
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("policylens")
@@ -106,6 +107,7 @@ async def upload_document(file: UploadFile = File(...)):
         "analysis": None,
         "analysis_status": "pending",
         "warnings": ingest_result.warnings,
+        "kps": None,
     })
 
     return {
@@ -138,6 +140,8 @@ def analyze_document(document_id: str):
     result = analysis_output["result"]
     readability_after = flesch_reading_ease(result.get("summary", ""))
 
+    kps = calculateKPS(result, readability_before=doc["readability_before"], readability_after=readability_after)
+
     storage.update(
         document_id,
         analysis=result,
@@ -145,6 +149,7 @@ def analyze_document(document_id: str):
         analysis_provider=analysis_output.get("provider_used"),
         analysis_fallback_used=analysis_output.get("fallback_used"),
         readability_after=readability_after,
+        kps=kps,
     )
 
     return {
@@ -156,6 +161,7 @@ def analyze_document(document_id: str):
             "before": doc["readability_before"],
             "after": readability_after,
         },
+        "kps": kps,
     }
 
 
@@ -208,6 +214,7 @@ def get_dashboard(document_id: str):
         },
         "fiveThingsToKnow": five_things,
         "analysis": analysis,
+        "kps": doc.get("kps"),
     }
 
 
